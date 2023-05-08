@@ -1,0 +1,15 @@
+/* DataTable.module.css */
+.table {
+  margin-top: 20px;
+}
+
+.txLink {
+  text-decoration: underline;
+}
+
+.disabledTxLink {
+  pointer-events: none;
+  cursor: default;
+  color: #6c757d;
+  text-decoration: line-through;
+}

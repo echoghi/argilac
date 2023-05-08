@@ -1,0 +1,30 @@
+/* Header.module.css */
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px 0;
+  width: 100%;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-left: 16px;
+}
+
+.titleContainer h3 {
+  margin: 0.15em 0;
+  margin: 0;
+}
+
+.titleContainer span,
+.titleContainer h3 {
+  color: #676767;
+}
+
+.logoContainer {
+  border-radius: 6px;
+  overflow: hidden;
+}
