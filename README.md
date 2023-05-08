@@ -1,4 +1,4 @@
-![Logo](./src/assets/banner.png)
+![Logo](./public/banner.png)
 
 # ⚡️ Argilac ⚡️
 
