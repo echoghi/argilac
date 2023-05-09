@@ -1,11 +1,18 @@
-import { ERC20_ABI, USDC_TOKEN, WETH_TOKEN } from '../constants';
+import { ERC20_ABI } from '../constants';
 import { getLog, saveLog, saveTrade, trackError } from './log';
 import Logger from './logger';
-import { walletAddress } from './provider';
+import { getConfig, walletAddress } from './provider';
 import { executeRoute, generateRoute } from './routing';
 import sendTelegramAlert from './sendTelegramAlert';
-import { formatBalance, formatUSD, getTokenBalance, getTokenBalances } from '../utils';
+import {
+  formatBalance,
+  formatUSD,
+  generateRandomHash,
+  getTokenBalance,
+  getTokenBalances
+} from '../utils';
 import { ethers } from 'ethers';
+import { getToken } from './token';
 
 /**
  * Executes a sell order by swapping WETH for USDC, updates the log, and sends an alert with the result.
@@ -15,31 +22,46 @@ import { ethers } from 'ethers';
  */
 
 export async function sell(price: string) {
-  const wethBalance = await getTokenBalance(walletAddress, WETH_TOKEN.address, ERC20_ABI);
-  const usdcBalance = await getTokenBalance(walletAddress, USDC_TOKEN.address, ERC20_ABI);
+  const config = getConfig();
+  const chain = config?.activeChain.displayName;
+  // @ts-ignore
+  const stablecoin = getToken(config?.tokens.stablecoin);
+  // @ts-ignore
+  const token = getToken(config?.tokens.token);
 
-  const formattedOldUSDCBalance = await formatBalance(usdcBalance, USDC_TOKEN.decimals);
-  const formattedBalance = await formatBalance(wethBalance, WETH_TOKEN.decimals);
+  const wethBalance = await getTokenBalance(walletAddress, token.address, ERC20_ABI);
+  const usdcBalance = await getTokenBalance(walletAddress, stablecoin.address, ERC20_ABI);
+
+  const formattedOldStableBalance = await formatBalance(usdcBalance, stablecoin.decimals);
+  const formattedBalance = await formatBalance(wethBalance, token.decimals);
   const hasBalance = formattedBalance > 0;
   const log = getLog();
 
   if (!log?.positionOpen) {
     Logger.error('No position currently open, skipping sell order');
+
+    trackError({
+      type: 'ORDER_CONFLICT',
+      message: 'Sell order recieved, but no position is currently open',
+      chain
+    });
   } else if (!hasBalance) {
     Logger.error('Insufficient WETH balance');
   }
 
-  const route = await generateRoute(WETH_TOKEN, USDC_TOKEN, formattedBalance);
+  const route = await generateRoute(token, stablecoin, formattedBalance);
 
   if (route && hasBalance && log.positionOpen) {
     try {
       // Sell all WETH for USDC
-      const res = await executeRoute(route, WETH_TOKEN, formattedBalance);
+      const res = await executeRoute(route, token, formattedBalance);
 
-      const { formattedUSDCBalance, formattedWETHBalance } = await getTokenBalances();
+      if (!res.hash) return;
+
+      const { formattedStablecoinBalance, formattedTokenBalance } = await getTokenBalances();
 
       // USDC balance after trade - cost basis - USDC balance before trade
-      const lastTradePNL = formattedUSDCBalance - 10 - formattedOldUSDCBalance;
+      const lastTradePNL = formattedStablecoinBalance - 10 - formattedOldStableBalance;
 
       const formattedTradePNL = formatUSD(lastTradePNL);
       const PNL = log.PNL ? log.PNL + lastTradePNL : lastTradePNL;
@@ -47,29 +69,26 @@ export async function sell(price: string) {
       const lastTradeTime = new Date().toLocaleString();
 
       saveLog({
-        positionOpen: formattedWETHBalance > 0,
-        usdcBalance: formattedUSDCBalance,
-        wethBalance: formattedWETHBalance,
+        positionOpen: formattedTokenBalance > 0,
+        stablecoinBalance: formattedStablecoinBalance,
+        tokenBalance: formattedTokenBalance,
         lastTrade: `Position closed at ${price}`,
         lastTradeTime: `[${lastTradeTime}]`,
         lastTradePrice: price,
         PNL
       });
 
-      // Generate a random byte array of length 32
-      const randomBytes = ethers.utils.randomBytes(32);
-
-      // Create a hash using the keccak256 function
-      const randomHash = ethers.utils.keccak256(randomBytes);
+      const randomHash = generateRandomHash();
 
       saveTrade({
         key: randomHash,
         type: 'Sell',
         price,
         date: lastTradeTime,
-        in: `${formattedUSDCBalance - formattedOldUSDCBalance} ${USDC_TOKEN.symbol}`,
-        out: `${formattedBalance} ${WETH_TOKEN.symbol}`,
-        link: `https://mumbai.polygonscan.com/tx/${res.hash}`
+        in: `${formattedStablecoinBalance - formattedOldStableBalance} ${stablecoin.symbol}`,
+        out: `${formattedBalance} ${token.symbol}`,
+        link: `${config?.activeChain.explorer}tx/${res.hash}`,
+        chain
       });
 
       if (lastTradePNL > 0) {
@@ -92,7 +111,8 @@ export async function sell(price: string) {
 
       trackError({
         type: 'SELL',
-        message: e.message
+        message: e.message,
+        chain
       });
     }
   } else {

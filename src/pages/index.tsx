@@ -4,15 +4,17 @@ import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 
 import styles from '../styles/Home.module.css';
-import Header from '../components/Header/Header';
+import Header from '../components/Header';
 import DataTable from '../components/DataTable/DataTable';
 import ControlPanel from '../components/ControlPanel';
+import LogsTable from '../components/LogsTable';
+import fetcher from '../lib/fetcher';
 
 export default function Home() {
-  // @ts-ignore
-  const fetcher = (...args: any) => fetch(...args).then((res) => res.json());
   const { data, error, isLoading } = useSWR('/api/data', fetcher, { refreshInterval: 30000 });
+  const errorLogs = useSWR('/api/logs', fetcher, { refreshInterval: 60000 });
   const trades = data?.trades || [];
+  const logs: any = errorLogs?.data?.logs || [];
 
   const items: TabsProps['items'] = [
     {
@@ -22,11 +24,16 @@ export default function Home() {
     },
     {
       key: '2',
-      label: `Events`,
+      label: `Trades`,
       children: <DataTable data={trades} />
     },
     {
       key: '3',
+      label: `Logs`,
+      children: <LogsTable data={logs} />
+    },
+    {
+      key: '4',
       label: `Assets`,
       children: `Content of Tab Pane 3`
     }

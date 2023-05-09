@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = () => {
       <Row>
         <Col>
           <div className={styles.logoContainer}>
-            <Image src="/logo.png" alt="Argilac Logo" width="75" height="75" />
+            <Image src="/logo.png" alt="Argilac Logo" width="75" height="75" priority />
           </div>
         </Col>
         <div className={styles.titleContainer}>

@@ -1,0 +1,8 @@
+/* LogsTable.module.css */
+.table {
+  margin-top: 20px;
+}
+
+.errorMessage {
+  cursor: pointer;
+}

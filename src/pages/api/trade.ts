@@ -6,6 +6,7 @@ import { buy } from '../../lib/buy';
 import { sell } from '../../lib/sell';
 import { hasGasMoney } from '../../utils';
 import sendTelegramAlert from '../../lib/sendTelegramAlert';
+import { getStatus } from '../../lib/log';
 
 type Data = {
   success: boolean;
@@ -20,10 +21,17 @@ type Data = {
 
 export const run = async (type: 'BUY' | 'SELL', price: string) => {
   const hasGas = await hasGasMoney();
+  const status = getStatus();
 
   if (!hasGas) {
     Logger.error('Insufficient gas funds');
     sendTelegramAlert('Insufficient gas funds');
+
+    return;
+  }
+
+  if (!status) {
+    Logger.error('Bot is not running, skipping trade');
 
     return;
   }

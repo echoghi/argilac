@@ -11,6 +11,7 @@ interface DataType {
   in: string;
   out: string;
   link: string;
+  chain: string;
 }
 
 interface DataTableProps {
@@ -27,6 +28,11 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
       render: (_, { type }) => <Tag color={type === 'Buy' ? 'green' : 'volcano'}>{type}</Tag>
     },
     {
+      title: 'Chain',
+      dataIndex: 'chain',
+      key: 'chain'
+    },
+    {
       title: 'Asset In',
       dataIndex: 'in',
       key: 'in'
@@ -39,7 +45,9 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
     {
       title: 'Price',
       dataIndex: 'price',
-      key: 'price'
+      key: 'price',
+      // @ts-ignore
+      render: (_, { price }) => `$${price}`
     },
     {
       title: 'Date',

@@ -14,7 +14,8 @@ import {
   TransactionState,
   getProvider,
   walletAddress,
-  TransactionInfo
+  TransactionInfo,
+  getConfig
 } from './provider';
 import {
   MAX_FEE_PER_GAS,
@@ -33,6 +34,7 @@ export async function generateRoute(
   amountIn: number
 ): Promise<SwapRoute | null> {
   let route = null;
+  const config = getConfig();
 
   try {
     const router = new AlphaRouter({
@@ -61,7 +63,8 @@ export async function generateRoute(
 
     trackError({
       type: 'GEN_ROUTE',
-      message: e.message
+      message: e.message,
+      chain: config?.activeChain.displayName
     });
   }
 
@@ -73,6 +76,7 @@ export async function executeRoute(
   tokenIn: Token,
   tradeAmount: number
 ): Promise<TransactionInfo> {
+  const config = getConfig();
   const provider = getProvider();
   let res: TransactionInfo = {
     state: TransactionState.Failed
@@ -104,7 +108,8 @@ export async function executeRoute(
 
     trackError({
       type: 'EXEC_ROUTE',
-      message: e.message
+      message: e.message,
+      chain: config?.activeChain.displayName
     });
   }
 
@@ -115,6 +120,7 @@ export async function getTokenTransferApproval(
   token: Token,
   tradeAmount?: number
 ): Promise<TransactionInfo> {
+  const config = getConfig();
   const provider = getProvider();
   const address = walletAddress;
 
@@ -156,7 +162,8 @@ export async function getTokenTransferApproval(
 
     trackError({
       type: 'TOKEN_APPROVAL',
-      message: e.message
+      message: e.message,
+      chain: config?.activeChain.displayName
     });
 
     return res;

@@ -4,8 +4,8 @@ import Logger from './logger';
 
 interface Log {
   positionOpen: boolean;
-  usdcBalance: number;
-  wethBalance: number;
+  stablecoinBalance: number;
+  tokenBalance: number;
   lastTrade?: string;
   lastTradeTime?: string;
   lastTradePrice?: string;
@@ -20,11 +20,13 @@ interface Trade {
   in: string;
   out: string;
   link: string;
+  chain: string | undefined;
 }
 
 interface Error {
   type: string;
   message: string;
+  chain: string | undefined;
   time?: string;
 }
 
@@ -38,8 +40,8 @@ interface Error {
 export function getLog(): Log {
   let log = {
     positionOpen: false,
-    usdcBalance: 0,
-    wethBalance: 0
+    stablecoinBalance: 0,
+    tokenBalance: 0
   };
 
   try {
@@ -136,4 +138,22 @@ export function trackError(error: Error) {
   } catch (e) {
     Logger.error('Error saving log.json');
   }
+}
+
+/**
+ * Reads status.json
+ * @returns {boolean} The status of the bot.
+ */
+export function getStatus(): boolean {
+  let status = false;
+
+  try {
+    const statusJSON = fs.readFileSync('./public/logs/status.json', 'utf-8');
+    const currentStatus = JSON.parse(statusJSON);
+    status = currentStatus.status;
+  } catch (e) {
+    Logger.error('Error reading status.json');
+  }
+
+  return status;
 }

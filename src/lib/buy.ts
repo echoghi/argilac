@@ -1,12 +1,18 @@
-import { CurrentConfig } from '../config';
-import { ERC20_ABI, USDC_TOKEN, WETH_TOKEN } from '../constants';
+import { ERC20_ABI } from '../constants';
 import { getLog, saveLog, saveTrade, trackError } from './log';
 import Logger from './logger';
-import { walletAddress } from './provider';
+import { getConfig, walletAddress } from './provider';
 import { executeRoute, generateRoute } from './routing';
 import sendTelegramAlert from './sendTelegramAlert';
-import { formatBalance, getBuyAmount, getTokenBalance, getTokenBalances } from '../utils';
+import {
+  formatBalance,
+  generateRandomHash,
+  getBuyAmount,
+  getTokenBalance,
+  getTokenBalances
+} from '../utils';
 import { ethers } from 'ethers';
+import { getToken } from './token';
 
 /**
  * Executes a buy order by swapping USDC for WETH, updates the log, and sends an alert with the result.
@@ -16,54 +22,67 @@ import { ethers } from 'ethers';
  */
 
 export async function buy(price: string) {
-  const usdcBalance = await getTokenBalance(walletAddress, USDC_TOKEN.address, ERC20_ABI);
-  const formattedBalance = await formatBalance(usdcBalance, USDC_TOKEN.decimals);
-  const hasBalance = formattedBalance > CurrentConfig.strategy.min;
+  const config = getConfig();
+  const chain = config?.activeChain.displayName;
+  // @ts-ignore
+  const stablecoin = getToken(config?.tokens.stablecoin);
+  // @ts-ignore
+  const token = getToken(config?.tokens.token);
+
+  const usdcBalance = await getTokenBalance(walletAddress, stablecoin.address, ERC20_ABI);
+  const formattedBalance = await formatBalance(usdcBalance, stablecoin.decimals);
+  // @ts-ignore
+  const hasBalance = formattedBalance > config.strategy.min;
   const log = getLog();
 
   if (log?.positionOpen) {
     Logger.error('Position already open, skipping buy order');
+
+    trackError({
+      type: 'ORDER_CONFLICT',
+      message: 'Buy order recieved, but a position is already open',
+      chain
+    });
   } else if (!hasBalance) {
     Logger.error('Insufficient USDC balance');
   }
 
   const tradeAmount = getBuyAmount(formattedBalance);
 
-  const route = await generateRoute(USDC_TOKEN, WETH_TOKEN, tradeAmount);
+  const route = await generateRoute(stablecoin, token, tradeAmount);
 
   if (route && hasBalance && !log.positionOpen) {
     try {
-      const res = await executeRoute(route, USDC_TOKEN, tradeAmount);
+      const res = await executeRoute(route, stablecoin, tradeAmount);
 
-      const { formattedUSDCBalance, formattedWETHBalance } = await getTokenBalances();
+      if (!res.hash) return;
+
+      const { formattedStablecoinBalance, formattedTokenBalance } = await getTokenBalances();
 
       saveLog({
         ...log,
-        positionOpen: formattedWETHBalance > 0,
-        usdcBalance: formattedUSDCBalance,
-        wethBalance: formattedWETHBalance,
+        positionOpen: formattedTokenBalance > 0,
+        stablecoinBalance: formattedStablecoinBalance,
+        tokenBalance: formattedTokenBalance,
         lastTrade: `Position opened at ${price}`,
         lastTradeTime: `[${new Date().toLocaleString()}]`,
         lastTradePrice: price
       });
 
-      // Generate a random byte array of length 32
-      const randomBytes = ethers.utils.randomBytes(32);
-
-      // Create a hash using the keccak256 function
-      const randomHash = ethers.utils.keccak256(randomBytes);
+      const randomHash = generateRandomHash();
 
       saveTrade({
         key: randomHash,
         type: 'Buy',
         price,
         date: new Date().toLocaleString(),
-        in: `${formattedWETHBalance} ${WETH_TOKEN.symbol}`,
-        out: `${tradeAmount} ${USDC_TOKEN.symbol}`,
-        link: `https://mumbai.polygonscan.com/tx/${res.hash}`
+        in: `${formattedTokenBalance} ${token.symbol}`,
+        out: `${tradeAmount} ${stablecoin.symbol}`,
+        link: `${config?.activeChain.explorer}tx/${res.hash}`,
+        chain
       });
 
-      sendTelegramAlert(`Position opened at ${price} (${formattedWETHBalance.toFixed(5)} WETH)`);
+      sendTelegramAlert(`Position opened at ${price} (${formattedTokenBalance.toFixed(5)} WETH)`);
 
       Logger.success('Buy order executed');
     } catch (e: any) {
@@ -73,7 +92,8 @@ export async function buy(price: string) {
 
       trackError({
         type: 'BUY',
-        message: e.message
+        message: e.message,
+        chain
       });
     }
   } else {

@@ -1,9 +1,9 @@
 {
-  "positionOpen": false,
-  "usdcBalance": 489.888562,
-  "wethBalance": 0,
-  "lastTrade": "Position closed at 1859.07",
-  "lastTradeTime": "[5/7/2023, 8:52:53 PM]",
-  "lastTradePrice": "1859.07",
-  "PNL": 173.773395
+  "positionOpen": true,
+  "stablecoinBalance": 244.659088,
+  "tokenBalance": 0.000091241252120793,
+  "lastTrade": "Position opened at 1848.91",
+  "lastTradeTime": "[5/9/2023, 12:55:37 PM]",
+  "lastTradePrice": "1848.91",
+  "PNL": 1826.9316000000001
 }
