@@ -2,7 +2,7 @@
 
 # ⚡️ Argilac ⚡️
 
-A crypto trading bot that automates buying and selling based on TradingView alerts.
+A crypto trading bot that automates trades based on TradingView alerts.
 
 ## Setup Instructions
 
@@ -30,4 +30,4 @@ A crypto trading bot that automates buying and selling based on TradingView aler
 
 ### 3. Start the Bot and Profit!
 
-1. Start the bot by toggling switch in the Controls section of the Control Panel tab. You can now monitor for incoming trades in the Trades tab and see detailed error/event logs in the Logs tab. You can also see similar, less detailed logs in the server output.
+1. Start the bot by toggling the switch in the Controls section of the Control Panel tab. You can now monitor for incoming trades in the Trades tab and see detailed error/event logs in the Logs tab. You can also see logs in the server output.
