@@ -4,18 +4,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import Logger from '../../lib/logger';
 import { trackError } from '../../lib/log';
+import { getConfig } from '../../lib/getConfig';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const jsonDirectory = path.join(process.cwd(), 'src', 'config');
   const isFetch = req?.method === 'GET';
-  let config: any;
-
-  try {
-    const fileContents = await fs.readFile(jsonDirectory + '/config.json', 'utf8');
-    config = JSON.parse(fileContents);
-  } catch (e: any) {
-    Logger.error('Failed to retrieve config from file');
-  }
+  let config = getConfig();
 
   if (isFetch) {
     res.status(200).json({ success: true, config });

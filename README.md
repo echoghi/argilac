@@ -18,7 +18,7 @@ A crypto trading bot that automates buying and selling based on TradingView aler
 ### 2. TradingView Alerts Setup
 
 1. Open a chart with your desired token pair, select an indicator/strategy, and create buy/sell alerts.
-2. In the "Settings" tab of each alert, add `{ type: "BUY", price: "{{close}}" }` for buy alerts and `{ type: "SELL", price: "{{close}}" }` for sell alerts.
+2. In the "Settings" tab of each alert, add `{ type: "BUY", price: "{{close}}", apiKey: "YOUR_KEY" }` for buy alerts and `{ type: "SELL", price: "{{close}}", apiKey: "YOUR_KEY" }` for sell alerts.
 3. In the "Notifications" tab, add the URL from your Ngrok output and append "/route" to the end.
 
 ### 3. Telegram Bot Setup (Optional)
