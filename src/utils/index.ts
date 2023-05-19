@@ -2,8 +2,9 @@ import { Token, TradeType } from '@uniswap/sdk-core';
 import { Trade } from '@uniswap/v3-sdk';
 import { BigNumber, ethers } from 'ethers';
 import { ERC20_ABI, V3_SWAP_ROUTER_ADDRESS } from '../constants';
-import { getProvider, ethersProvider, walletAddress, getConfig } from '../lib/provider';
+import { getProvider, ethersProvider, walletAddress } from '../lib/provider';
 import { getToken } from '../lib/token';
+import { getConfig } from '../lib/getConfig';
 
 const MAX_DECIMALS = 4;
 

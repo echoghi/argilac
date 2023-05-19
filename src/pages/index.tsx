@@ -1,7 +1,9 @@
-import Head from 'next/head';
+import { IncomingMessage } from 'http';
+import { NextPageContext } from 'next';
 import useSWR, { SWRConfig } from 'swr';
-import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
+import Head from 'next/head';
+import { Tabs } from 'antd';
 
 import styles from '../styles/Home.module.css';
 import Header from '../components/Header';
@@ -9,8 +11,6 @@ import Trades from '../components/Trades';
 import ControlPanel from '../components/ControlPanel';
 import LogsTable from '../components/LogsTable';
 import fetcher from '../lib/fetcher';
-import { IncomingMessage } from 'http';
-import { NextPageContext } from 'next';
 import Assets from '../components/Assets';
 
 interface MyIncomingMessage extends IncomingMessage {
@@ -34,7 +34,6 @@ export async function getServerSideProps(context: MainContext) {
   // `getStaticProps` is executed on the server side.
   const data = await fetcher(`${baseUrl}/api/data`);
   const logs = await fetcher(`${baseUrl}/api/logs`);
-  const status = await fetcher(`${baseUrl}/api/status`);
   const config = await fetcher(`${baseUrl}/api/config`);
   const chain = await fetcher(`${baseUrl}/api/chain`);
   const assets = await fetcher(`${baseUrl}/api/assets`);
@@ -44,7 +43,6 @@ export async function getServerSideProps(context: MainContext) {
       fallback: {
         '/api/data': data,
         '/api/logs': logs,
-        '/api/status': status,
         '/api/config': config,
         '/api/chain': chain,
         '/api/assets': assets
@@ -54,7 +52,7 @@ export async function getServerSideProps(context: MainContext) {
 }
 
 export default function Home({ fallback }: { fallback: any }) {
-  const { data, error, isLoading } = useSWR('/api/data', fetcher, { refreshInterval: 60000 });
+  const { data } = useSWR('/api/data', fetcher, { refreshInterval: 60000 });
   const assetData = useSWR('/api/assets', fetcher, { refreshInterval: 60000 });
   const errorLogs = useSWR('/api/logs', fetcher, { refreshInterval: 60000 });
   const trades = data?.trades || [];

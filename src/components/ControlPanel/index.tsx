@@ -5,7 +5,6 @@ import { Draft, produce } from 'immer';
 import styles from './ControlPanel.module.css';
 import ProjectSelect from '../ProjectSelect';
 
-import updateStatus from '../../lib/updateStatus';
 import fetcher from '../../lib/fetcher';
 import { useState } from 'react';
 import updateConfig from '../../lib/updateConfig';
@@ -22,12 +21,10 @@ import { Config } from '../../lib/provider';
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 const ControlPanel = () => {
-  const { data, isLoading } = useSWR('/api/status', fetcher, { refreshInterval: 1000 });
   const config = useSWR('/api/config', fetcher, { refreshInterval: 1000 });
   const chainData = useSWR('/api/chain', fetcher);
   const [api, contextHolder] = notification.useNotification();
 
-  const [botStatus, setBotStatus] = useState(data?.status);
   const [botConfig, setBotConfig] = useState(config?.data?.config);
   const [botRpcUrl, setBotRpcUrl] = useState(config?.data?.config?.activeChain?.rpc);
 
@@ -56,13 +53,13 @@ const ControlPanel = () => {
     }
   };
 
-  const handleUpdateConfig = async (updatedConfig: any) => {
+  const handleUpdateConfig = async (updatedConfig: any, log?: any) => {
     // update state optimistically
     setBotConfig(updatedConfig);
 
     setBotRpcUrl(updatedConfig?.activeChain.rpc);
 
-    const res = await updateConfig(updatedConfig);
+    const res = await updateConfig(updatedConfig, log);
 
     // revert state if update failed
     if (!res?.success) {
@@ -73,15 +70,18 @@ const ControlPanel = () => {
   };
 
   const handleToggleStatus = async (checked: boolean) => {
-    // update status optimistically
-    setBotStatus(checked);
-    // update status in db
-    const res = await updateStatus({ status: checked });
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
+      draft.status = checked;
+    });
 
-    // revert status if update failed
-    if (!res?.success) setBotStatus(!checked);
-    // trigger notification
-    handleNotification(res?.success);
+    const log = {
+      type: 'BOT_STATUS',
+      message: checked ? 'Bot started via control panel' : 'Bot stopped via control panel',
+      // @ts-ignore
+      chain: updatedConfig.activeChain.name
+    };
+
+    await handleUpdateConfig(updatedConfig, log);
   };
 
   const handleStablecoinChange = async (value: string) => {
@@ -155,14 +155,16 @@ const ControlPanel = () => {
     await handleUpdateConfig(updatedConfig);
   };
 
-  if (!botConfig || isLoading) return <div>Loading...</div>;
+  if (!botConfig || config.isLoading) return <div>Loading...</div>;
 
   return (
     <Space direction="vertical">
       {contextHolder}
       <Space direction="horizontal" align="center">
         <h1 className={styles.title}>Project Details</h1>
-        <Tag color={botStatus ? 'green' : 'volcano'}>{botStatus ? 'Active' : 'Halted'}</Tag>
+        <Tag color={botConfig.status ? 'green' : 'volcano'}>
+          {botConfig.status ? 'Active' : 'Halted'}
+        </Tag>
       </Space>
       <Space direction="horizontal" size="large">
         <Space direction="vertical">
@@ -252,8 +254,8 @@ const ControlPanel = () => {
 
           <Switch
             disabled={!botConfig.activeChain.rpc}
-            checked={botStatus}
-            loading={isLoading}
+            checked={botConfig.status}
+            loading={config.isLoading}
             onChange={handleToggleStatus}
             checkedChildren="ON"
             unCheckedChildren="OFF"

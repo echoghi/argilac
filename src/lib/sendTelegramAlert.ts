@@ -1,5 +1,5 @@
+import { getConfig } from './getConfig';
 import Logger from './logger';
-import { getConfig } from './provider';
 
 require('dotenv').config();
 

@@ -5,12 +5,10 @@ import { generateRandomHash } from '../../utils';
 import Logger from '../../lib/logger';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const jsonDirectory = path.join(process.cwd(), 'src', 'logs');
   const isFetch = req?.method === 'GET';
 
   if (isFetch) {
-    //Find the absolute path of the json directory
-    const jsonDirectory = path.join(process.cwd(), 'public/logs');
-    //Read the json data file data.json
     const fileContents = await fs.readFile(jsonDirectory + '/error-log.json', 'utf8');
     const logs = JSON.parse(fileContents);
 
@@ -31,8 +29,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let success: boolean = false;
 
     try {
-      const jsonDirectory = path.join(process.cwd(), 'public/logs');
-
       await fs.writeFile(jsonDirectory + '/error-log.json', JSON.stringify([], null, 2));
 
       success = true;

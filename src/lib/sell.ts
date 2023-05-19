@@ -1,18 +1,12 @@
 import { ERC20_ABI } from '../constants';
 import { getLog, saveLog, saveTrade, trackError } from './log';
 import Logger from './logger';
-import { getConfig, walletAddress } from './provider';
+import { walletAddress } from './provider';
 import { executeRoute, generateRoute } from './routing';
 import sendTelegramAlert from './sendTelegramAlert';
-import {
-  formatBalance,
-  formatUSD,
-  generateRandomHash,
-  getTokenBalance,
-  getTokenBalances
-} from '../utils';
-import { ethers } from 'ethers';
+import { formatBalance, generateRandomHash, getTokenBalance, getTokenBalances } from '../utils';
 import { getToken } from './token';
+import { getConfig } from './getConfig';
 
 /**
  * Executes a sell order by swapping WETH for USDC, updates the log, and sends an alert with the result.
@@ -60,12 +54,6 @@ export async function sell(price: string) {
 
       const { formattedStablecoinBalance, formattedTokenBalance } = await getTokenBalances();
 
-      // USDC balance after trade - cost basis - USDC balance before trade
-      const lastTradePNL = formattedStablecoinBalance - 10 - formattedOldStableBalance;
-
-      const formattedTradePNL = formatUSD(lastTradePNL);
-      const PNL = log.PNL ? log.PNL + lastTradePNL : lastTradePNL;
-
       const lastTradeTime = new Date().toLocaleString();
 
       saveLog({
@@ -74,36 +62,26 @@ export async function sell(price: string) {
         tokenBalance: formattedTokenBalance,
         lastTrade: `Position closed at ${price}`,
         lastTradeTime: `[${lastTradeTime}]`,
-        lastTradePrice: price,
-        PNL
+        lastTradePrice: price
       });
 
-      const randomHash = generateRandomHash();
+      const key = generateRandomHash();
+      const link = `${config?.activeChain.explorer}tx/${res.hash}`;
 
       saveTrade({
-        key: randomHash,
         type: 'Sell',
+        key,
         price,
         date: lastTradeTime,
+        link,
+        chain,
         in: `${formattedStablecoinBalance - formattedOldStableBalance} ${stablecoin.symbol}`,
-        out: `${formattedBalance} ${token.symbol}`,
-        link: `${config?.activeChain.explorer}tx/${res.hash}`,
-        chain
+        out: `${formattedBalance} ${token.symbol}`
       });
 
-      if (lastTradePNL > 0) {
-        const message = `Position closed at ${price} for a gain of ${formattedTradePNL} - Total P&L: ${formatUSD(
-          PNL
-        )}`;
-        sendTelegramAlert(message);
-        Logger.success(message);
-      } else {
-        const message = `Position closed at ${price} for a loss of ${formattedTradePNL} - Total P&L: ${formatUSD(
-          PNL
-        )}`;
-        sendTelegramAlert(message);
-        Logger.error(message);
-      }
+      const message = `${formattedBalance} ${token.symbol} sold at ${price}. ${link}`;
+      sendTelegramAlert(message);
+      Logger.success(message);
     } catch (e: any) {
       Logger.error('Sell order failed');
 

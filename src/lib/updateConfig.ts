@@ -1,11 +1,11 @@
-export default async function updateConfig(config: any) {
+export default async function updateConfig(config: any, log?: any) {
   try {
     const response = await fetch('/api/config', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ config })
+      body: JSON.stringify({ config, log })
     });
 
     if (!response.ok) {

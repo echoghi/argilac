@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   //Find the absolute path of the json directory
-  const jsonDirectory = path.join(process.cwd(), 'public');
+  const jsonDirectory = path.join(process.cwd(), 'src', 'config');
   //Read the json data file data.json
   const fileContents = await fs.readFile(jsonDirectory + '/chainData.json', 'utf8');
   //Return the content of the data file in json format

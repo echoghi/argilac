@@ -47,7 +47,7 @@ export function getLog(): Log {
   };
 
   try {
-    const logJSON = fs.readFileSync('./public/logs/log.json', 'utf-8');
+    const logJSON = fs.readFileSync('./src/logs/log.json', 'utf-8');
     log = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading log.json');
@@ -67,7 +67,7 @@ export function getTrades(): Trade[] {
   let trades = [];
 
   try {
-    const logJSON = fs.readFileSync('./public/logs/trades.json', 'utf-8');
+    const logJSON = fs.readFileSync('./src/logs/trades.json', 'utf-8');
     trades = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading trades.json');
@@ -84,7 +84,7 @@ export function getTrades(): Trade[] {
  */
 export function saveLog(newLog: Log) {
   try {
-    fs.writeFileSync(`./public/logs/log.json`, JSON.stringify(newLog, null, 2));
+    fs.writeFileSync(`./src/logs/log.json`, JSON.stringify(newLog, null, 2));
   } catch (e) {
     Logger.error('Error saving log.json');
   }
@@ -101,7 +101,7 @@ export function saveTrade(newTrade: Trade) {
     const trades = getTrades();
     trades.unshift(newTrade);
 
-    fs.writeFileSync(`./public/logs/trades.json`, JSON.stringify(trades, null, 2));
+    fs.writeFileSync(`./src/logs/trades.json`, JSON.stringify(trades, null, 2));
   } catch (e) {
     Logger.error('Error saving trades.json');
   }
@@ -115,7 +115,7 @@ export function getErrorLog(): Error[] {
   let errors = [];
 
   try {
-    const logJSON = fs.readFileSync('./public/logs/error-log.json', 'utf-8');
+    const logJSON = fs.readFileSync('./src/logs/error-log.json', 'utf-8');
     errors = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading error-log.json');
@@ -137,7 +137,7 @@ export function trackError(error: Error) {
       key: generateRandomHash()
     });
 
-    fs.writeFileSync(`./public/logs/error-log.json`, JSON.stringify(errors, null, 2));
+    fs.writeFileSync(`./src/logs/error-log.json`, JSON.stringify(errors, null, 2));
   } catch (e) {
     Logger.error('Error saving log.json');
   }
@@ -151,7 +151,7 @@ export function getStatus(): boolean {
   let status = false;
 
   try {
-    const statusJSON = fs.readFileSync('./public/logs/status.json', 'utf-8');
+    const statusJSON = fs.readFileSync('./src/logs/status.json', 'utf-8');
     const currentStatus = JSON.parse(statusJSON);
     status = currentStatus.status;
   } catch (e) {

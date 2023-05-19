@@ -14,8 +14,7 @@ import {
   TransactionState,
   getProvider,
   walletAddress,
-  TransactionInfo,
-  getConfig
+  TransactionInfo
 } from './provider';
 import {
   MAX_FEE_PER_GAS,
@@ -27,6 +26,7 @@ import {
 import { checkAllowance, fromReadableAmount } from '../utils';
 import Logger from './logger';
 import { trackError } from './log';
+import { getConfig } from './getConfig';
 
 export async function generateRoute(
   tokenIn: Token,

@@ -4,7 +4,7 @@
     "SYMBOL": "ETH",
     "DISPLAY_NAME": "Ethereum",
     "EXPLORER": "https://etherscan.io/",
-    "RPC": "https://eth-mainnet.g.alchemy.com/v2/PCXgGhPauStufgKsNuPvyjiOn84C_4CC",
+    "RPC": "",
     "TOKENS": {
       "WETH": {
         "CONTRACT": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -31,7 +31,7 @@
     "SYMBOL": "MATIC",
     "DISPLAY_NAME": "Polygon",
     "EXPLORER": "https://polygonscan.com/",
-    "RPC": "https://polygon-mainnet.g.alchemy.com/v2/9SZ2ThVI8loYruk_atcoCOY5bRtkYZlw",
+    "RPC": "",
     "TOKENS": {
       "WETH": {
         "CONTRACT": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
@@ -58,7 +58,7 @@
     "SYMBOL": "MATIC",
     "DISPLAY_NAME": "Polygon Mumbai",
     "EXPLORER": "https://mumbai.polygonscan.com/",
-    "RPC": "https://polygon-mumbai.g.alchemy.com/v2/IqgETV51kGFTGRO_1EEqm27dCF44Vokc",
+    "RPC": "",
     "TOKENS": {
       "WETH": {
         "CONTRACT": "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
@@ -88,7 +88,7 @@
     "SYMBOL": "ETH",
     "DISPLAY_NAME": "Ethereum Goerli",
     "EXPLORER": "https://goerli.etherscan.io/",
-    "RPC": "https://eth-goerli.g.alchemy.com/v2/CBbEaH3fAte7UI4TDtUuBjH3IhHcwWZz",
+    "RPC": "",
     "TOKENS": {
       "WETH": {
         "CONTRACT": "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6",

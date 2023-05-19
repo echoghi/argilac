@@ -1,10 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getNativeBalance } from '../../lib/getNativeBalance';
-import { getChainData, walletAddress } from '../../lib/provider';
-import { getEthPrice, getMaticPrice } from '../../lib/getTokenPrices';
-import { getTokenBalance, formatBalance } from '../../utils';
-import { ERC20_ABI } from '../../constants';
 import { ethers } from 'ethers';
+
+import { ERC20_ABI } from '../../constants';
+import { walletAddress } from '../../lib/provider';
+import { getChainData } from '../../lib/getConfig';
+import { getTokenBalance, formatBalance } from '../../utils';
+import { getNativeBalance } from '../../lib/getNativeBalance';
+import { getEthPrice, getMaticPrice } from '../../lib/getTokenPrices';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const chainData = getChainData();
@@ -109,6 +111,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   ];
 
-  //Return the content of the data file in json format
   res.status(200).json({ assets });
 }

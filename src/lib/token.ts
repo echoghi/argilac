@@ -1,5 +1,5 @@
 import { Token } from '@uniswap/sdk-core';
-import { getChainData, getConfig } from './provider';
+import { getChainData, getConfig } from './getConfig';
 
 export const getToken = (symbol: string) => {
   const config = getConfig();

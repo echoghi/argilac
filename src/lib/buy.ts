@@ -1,7 +1,7 @@
 import { ERC20_ABI } from '../constants';
 import { getLog, saveLog, saveTrade, trackError } from './log';
 import Logger from './logger';
-import { getConfig, walletAddress } from './provider';
+import { walletAddress } from './provider';
 import { executeRoute, generateRoute } from './routing';
 import sendTelegramAlert from './sendTelegramAlert';
 import {
@@ -11,8 +11,8 @@ import {
   getTokenBalance,
   getTokenBalances
 } from '../utils';
-import { ethers } from 'ethers';
 import { getToken } from './token';
+import { getConfig } from './getConfig';
 
 /**
  * Executes a buy order by swapping USDC for WETH, updates the log, and sends an alert with the result.
@@ -69,22 +69,25 @@ export async function buy(price: string) {
         lastTradePrice: price
       });
 
-      const randomHash = generateRandomHash();
+      const key = generateRandomHash();
+      const link = `${config?.activeChain.explorer}tx/${res.hash}`;
 
       saveTrade({
-        key: randomHash,
         type: 'Buy',
+        key,
         price,
+        link,
+        chain,
         date: new Date().toLocaleString(),
         in: `${formattedTokenBalance} ${token.symbol}`,
-        out: `${tradeAmount} ${stablecoin.symbol}`,
-        link: `${config?.activeChain.explorer}tx/${res.hash}`,
-        chain
+        out: `${tradeAmount} ${stablecoin.symbol}`
       });
 
-      sendTelegramAlert(`Position opened at ${price} (${formattedTokenBalance.toFixed(5)} WETH)`);
+      sendTelegramAlert(
+        `Position opened at ${price} (${formattedTokenBalance.toFixed(5)} WETH). ${link}`
+      );
 
-      Logger.success('Buy order executed');
+      Logger.success(`Buy order executed: ${link}`);
     } catch (e: any) {
       Logger.error('Buy order failed');
 

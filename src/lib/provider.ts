@@ -1,71 +1,9 @@
 import { ethers, BigNumber, providers, Wallet } from 'ethers';
 import { BaseProvider } from '@ethersproject/providers';
 import Web3 from 'web3';
-import fs from 'fs';
-
-import Logger from './logger';
+import { getConfig } from './getConfig';
 
 require('dotenv').config();
-
-export interface Config {
-  exchange: string;
-  activeChain: {
-    name: string;
-    rpc: string;
-    explorer: string;
-    displayName: string;
-    currency: string;
-    id: number;
-  };
-  tokens: {
-    stablecoin: string;
-    amountIn: number;
-    token: string;
-  };
-  strategy: {
-    size: number;
-    slippage: number;
-    min: number;
-    max: boolean;
-  };
-  logs: {
-    telegram: boolean;
-  };
-}
-
-/**
- * Reads config.json
- * @returns {config} user config
- */
-export function getConfig(): Config | undefined {
-  let config;
-
-  try {
-    const configJSON = fs.readFileSync('./public/config.json', 'utf-8');
-    config = JSON.parse(configJSON);
-  } catch (e) {
-    Logger.error('Error reading config.json');
-  }
-
-  return config;
-}
-
-/**
- * Reads chainData.json
- * @returns {chainData}
- */
-export function getChainData(): any {
-  let data;
-
-  try {
-    const configJSON = fs.readFileSync('./public/chainData.json', 'utf-8');
-    data = JSON.parse(configJSON);
-  } catch (e) {
-    Logger.error('Error reading chainData.json');
-  }
-
-  return data;
-}
 
 const config = getConfig();
 
