@@ -7,12 +7,14 @@ import Logger from './logger';
 
 require('dotenv').config();
 
-interface Config {
+export interface Config {
+  exchange: string;
   activeChain: {
     name: string;
     rpc: string;
     explorer: string;
     displayName: string;
+    currency: string;
     id: number;
   };
   tokens: {

@@ -10,6 +10,7 @@ import { getStatus } from '../../lib/log';
 
 type Data = {
   success: boolean;
+  message?: string;
 };
 
 /**
@@ -50,6 +51,21 @@ export const run = async (type: 'BUY' | 'SELL', price: string) => {
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  // Check for API key in the body of the request
+  const apiKey = req.body.apiKey;
+
+  // Check if the API key is valid
+  if (apiKey !== process.env.API_KEY) {
+    // If not valid, return 403 Forbidden
+    res.status(403).json({ success: false, message: 'Forbidden' });
+    Logger.error('Invalid API key');
+    return;
+  }
+
+  // If valid, continue with the request
+  // Remove or obfuscate the apiKey from the body before further processing
+  delete req.body.apiKey;
+
   const type = req?.body?.type;
   const price = req?.body?.price;
 

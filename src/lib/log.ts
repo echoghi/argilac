@@ -1,6 +1,7 @@
 import fs from 'fs';
 
 import Logger from './logger';
+import { generateRandomHash } from '../utils';
 
 interface Log {
   positionOpen: boolean;
@@ -24,6 +25,7 @@ interface Trade {
 }
 
 interface Error {
+  key?: string;
   type: string;
   message: string;
   chain: string | undefined;
@@ -130,8 +132,9 @@ export function trackError(error: Error) {
   try {
     const errors = getErrorLog();
     errors.unshift({
+      ...error,
       time: new Date().toLocaleString(),
-      ...error
+      key: generateRandomHash()
     });
 
     fs.writeFileSync(`./public/logs/error-log.json`, JSON.stringify(errors, null, 2));

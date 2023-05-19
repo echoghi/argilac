@@ -53,9 +53,9 @@ export function displayTrade(trade: Trade<Token, Token, TradeType>): string {
 export async function getTokenBalance(
   address: string,
   tokenAddress: string,
-  abi: any
+  abi: any,
+  provider: ethers.providers.Provider = getProvider()
 ): Promise<number> {
-  const provider = getProvider();
   const tokenContract = new ethers.Contract(tokenAddress, abi, provider);
 
   const balance = await tokenContract.balanceOf(address);

@@ -1,8 +1,12 @@
 // components/LogsTable.tsx
-import React from 'react';
-import { Modal, Table, Tag } from 'antd';
-import styles from './LogsTable.module.css';
+import React, { useState } from 'react';
 import { CloseCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Divider, Modal, Space, Table, Tag, Typography } from 'antd';
+
+import styles from './LogsTable.module.css';
+import clearErrorLogs from '../../lib/clearErrorLogs';
+
+const { Title } = Typography;
 
 interface DataType {
   key: React.Key;
@@ -24,16 +28,31 @@ const ErrorMessage = ({ msg }: { msg: string }) => {
 };
 
 const LogsTable: React.FC<DataTableProps> = ({ data }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = async () => {
+    setIsModalOpen(false);
+    await clearErrorLogs();
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const columns = [
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
       // @ts-ignore
-      render: (_, { type, message }) => (
+      render: (_, { type }) => (
         <Tag
           icon={type !== 'BOT_STATUS' ? <CloseCircleOutlined /> : null}
-          color={message === 'Bot started via control panel' ? 'green' : 'volcano'}
+          color={type === 'BOT_STATUS' ? 'blue' : 'volcano'}
         >
           {type}
         </Tag>
@@ -71,6 +90,33 @@ const LogsTable: React.FC<DataTableProps> = ({ data }) => {
 
   return (
     <div className={styles.table}>
+      <Title level={4}>Bot Logs</Title>
+      <div>
+        <Alert
+          message="Listed log items are the result of errors and events that occured during the bot's operation. Click on a row to see the full error message."
+          type="info"
+          showIcon
+          closable
+          action={
+            <Space direction="horizontal">
+              <Button size="small" danger onClick={showModal} disabled={!data.length}>
+                Clear Logs
+              </Button>
+              <Modal
+                title="Delete Logs?"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                okText="Delete"
+                cancelText="Cancel"
+              >
+                <p>Are you sure you want to permanently delete all logs?</p>
+              </Modal>
+            </Space>
+          }
+        />
+      </div>
+      <Divider />
       <Table<DataType> columns={columns} dataSource={data} />
     </div>
   );

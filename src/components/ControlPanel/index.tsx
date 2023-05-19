@@ -1,7 +1,6 @@
-import { Button, Checkbox, Modal, Space, Tag, notification } from 'antd';
+import { Button, Input, Space, Switch, Tag, notification } from 'antd';
 import useSWR from 'swr';
-import { produce } from 'immer';
-import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+import { Draft, produce } from 'immer';
 
 import styles from './ControlPanel.module.css';
 import ProjectSelect from '../ProjectSelect';
@@ -18,6 +17,7 @@ import {
   stablecoinOptions,
   tokenOptions
 } from './selectOptions';
+import { Config } from '../../lib/provider';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -26,6 +26,14 @@ const ControlPanel = () => {
   const config = useSWR('/api/config', fetcher, { refreshInterval: 1000 });
   const chainData = useSWR('/api/chain', fetcher);
   const [api, contextHolder] = notification.useNotification();
+
+  const [botStatus, setBotStatus] = useState(data?.status);
+  const [botConfig, setBotConfig] = useState(config?.data?.config);
+  const [botRpcUrl, setBotRpcUrl] = useState(config?.data?.config?.activeChain?.rpc);
+
+  const handleRpcUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBotRpcUrl(e.target.value);
+  };
 
   const openNotification = (type: NotificationType, title: string, description: string) => {
     api[type]({
@@ -49,46 +57,45 @@ const ControlPanel = () => {
   };
 
   const handleUpdateConfig = async (updatedConfig: any) => {
+    // update state optimistically
+    setBotConfig(updatedConfig);
+
+    setBotRpcUrl(updatedConfig?.activeChain.rpc);
+
     const res = await updateConfig(updatedConfig);
+
+    // revert state if update failed
+    if (!res?.success) {
+      setBotConfig(config?.data?.config);
+    }
 
     handleNotification(res.success);
   };
 
-  const [showModal, setShowModal] = useState(false);
+  const handleToggleStatus = async (checked: boolean) => {
+    // update status optimistically
+    setBotStatus(checked);
+    // update status in db
+    const res = await updateStatus({ status: checked });
 
-  const onStartClick = async () => {
-    const res = await updateStatus({ status: true });
-
+    // revert status if update failed
+    if (!res?.success) setBotStatus(!checked);
+    // trigger notification
     handleNotification(res?.success);
-  };
-
-  const onStopClick = async () => {
-    setShowModal(false);
-    const res = await updateStatus({ status: false });
-
-    handleNotification(res?.success);
-  };
-
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  const hideModal = () => {
-    setShowModal(false);
   };
 
   const handleStablecoinChange = async (value: string) => {
-    const updatedConfig = produce(config.data.config, (draft: any) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
       draft.tokens.stablecoin = value;
     });
 
-    await updateConfig(updatedConfig);
+    await handleUpdateConfig(updatedConfig);
   };
 
   const handleChainChange = async (value: string) => {
     let chainInfo = chainData?.data?.chainData;
 
-    const updatedConfig = produce(config.data.config, (draft: any) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
       draft.activeChain.id = chainInfo[value].ID;
       draft.activeChain.rpc = chainInfo[value].RPC;
       draft.activeChain.currency = chainInfo[value].SYMBOL;
@@ -100,8 +107,24 @@ const ControlPanel = () => {
     await handleUpdateConfig(updatedConfig);
   };
 
+  const handleExchangeChange = async (value: string) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
+      draft.exchange = value;
+    });
+
+    await handleUpdateConfig(updatedConfig);
+  };
+
+  const handleSaveRpc = async () => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
+      draft.activeChain.rpc = botRpcUrl;
+    });
+
+    await handleUpdateConfig(updatedConfig);
+  };
+
   const handleSlippageChange = async (value: string) => {
-    const updatedConfig = produce(config.data.config, (draft: any) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
       draft.strategy.slippage = parseFloat(value);
     });
 
@@ -109,7 +132,7 @@ const ControlPanel = () => {
   };
 
   const handleSizeChange = async (value: string) => {
-    const updatedConfig = produce(config.data.config, (draft: any) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
       draft.strategy.size = parseFloat(value);
     });
 
@@ -117,42 +140,64 @@ const ControlPanel = () => {
   };
 
   const handleTokenChange = async (value: string) => {
-    const updatedConfig = produce(config.data.config, (draft: any) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
       draft.tokens.token = value;
     });
 
     await handleUpdateConfig(updatedConfig);
   };
 
-  const handleLogsChange = async (e: CheckboxChangeEvent) => {
-    const updatedConfig = produce(config.data.config, (draft: any) => {
-      draft.logs.telegram = !!e.target.checked;
+  const handleLogsChange = async (checked: boolean) => {
+    const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
+      draft.logs.telegram = checked;
     });
 
     await handleUpdateConfig(updatedConfig);
   };
 
-  if (config.isLoading || isLoading) return <div>Loading...</div>;
+  if (!botConfig || isLoading) return <div>Loading...</div>;
 
   return (
     <Space direction="vertical">
       {contextHolder}
       <Space direction="horizontal" align="center">
         <h1 className={styles.title}>Project Details</h1>
-        <Tag color={data?.status ? 'green' : 'volcano'}>{data?.status ? 'Active' : 'Halted'}</Tag>
+        <Tag color={botStatus ? 'green' : 'volcano'}>{botStatus ? 'Active' : 'Halted'}</Tag>
       </Space>
       <Space direction="horizontal" size="large">
-        <Space wrap direction="vertical">
+        <Space direction="vertical">
           <h3 className={styles.secondaryText}>Environment</h3>
           <ProjectSelect
             options={chainOptions}
-            defaultValue={config?.data?.config?.activeChain?.name}
+            defaultValue={botConfig?.activeChain?.name}
             onChange={handleChainChange}
           />
         </Space>
-        <Space wrap direction="vertical">
+        <Space direction="vertical">
           <h3 className={styles.secondaryText}>Exchange</h3>
-          <ProjectSelect options={exchangeOptions} defaultValue={config?.data?.config?.exchange} />
+          <ProjectSelect
+            options={exchangeOptions}
+            defaultValue={botConfig?.exchange}
+            onChange={handleExchangeChange}
+          />
+        </Space>
+      </Space>
+      <Space direction="horizontal" size="large" align="center">
+        <Space direction="vertical">
+          <h3 className={styles.secondaryText}>{botConfig.activeChain.displayName} RPC</h3>
+
+          <Space direction="horizontal">
+            <Input
+              defaultValue={botRpcUrl}
+              value={botRpcUrl}
+              onChange={handleRpcUrlChange}
+              style={{ width: '450px' }}
+              size="large"
+            />
+            <Button type="primary" onClick={handleSaveRpc} size="large">
+              Save
+            </Button>
+          </Space>
         </Space>
       </Space>
       <Space direction="horizontal" size="large">
@@ -161,14 +206,14 @@ const ControlPanel = () => {
           <ProjectSelect
             options={stablecoinOptions}
             onChange={handleStablecoinChange}
-            defaultValue={config?.data?.config?.tokens.stablecoin}
+            defaultValue={botConfig?.tokens.stablecoin}
           />
         </Space>
         <Space wrap direction="vertical">
           <h3 className={styles.secondaryText}>Trading Pair</h3>
           <ProjectSelect
             options={tokenOptions}
-            defaultValue={config?.data?.config?.tokens.token}
+            defaultValue={botConfig?.tokens.token}
             onChange={handleTokenChange}
           />
         </Space>
@@ -178,7 +223,7 @@ const ControlPanel = () => {
           <h3 className={styles.secondaryText}>Slippage</h3>
           <ProjectSelect
             options={slippageOptions}
-            defaultValue={config?.data?.config?.strategy.slippage}
+            defaultValue={String(botConfig?.strategy.slippage)}
             onChange={handleSlippageChange}
           />
         </Space>
@@ -186,56 +231,33 @@ const ControlPanel = () => {
           <h3 className={styles.secondaryText}>Trade Size</h3>
           <ProjectSelect
             options={sizeOptions}
-            defaultValue={config?.data?.config?.strategy.size}
+            defaultValue={String(botConfig?.strategy.size)}
             onChange={handleSizeChange}
           />
         </Space>
       </Space>
       <Space direction="vertical" size="large">
-        <h3 className={styles.secondaryText}>Logs</h3>
-        <Checkbox checked={config?.data?.config?.logs?.telegram} onChange={handleLogsChange}>
-          {config?.data?.config?.logs?.telegram
-            ? 'Telegram Logging Enabled'
-            : 'Telegram Logging Disabled'}
-        </Checkbox>
+        <h3 className={styles.secondaryText}>Telegram Logs</h3>
+        <Switch
+          disabled={!process.env.telegramToken || !process.env.telegramChatId}
+          checked={botConfig?.logs?.telegram}
+          onChange={handleLogsChange}
+          checkedChildren="ON"
+          unCheckedChildren="OFF"
+        />
       </Space>
       <Space direction="horizontal">
         <Space wrap direction="vertical">
           <h3 className={styles.secondaryText}>Controls</h3>
 
-          {data?.status ? (
-            <Button
-              type="primary"
-              danger
-              size="large"
-              onClick={openModal}
-              loading={isLoading}
-              disabled={isLoading}
-            >
-              Stop
-            </Button>
-          ) : (
-            <Button
-              type="primary"
-              size="large"
-              onClick={onStartClick}
-              loading={isLoading}
-              disabled={isLoading}
-            >
-              Start
-            </Button>
-          )}
-
-          <Modal
-            title="Stop Bot?"
-            open={showModal}
-            onOk={onStopClick}
-            onCancel={hideModal}
-            okText="Confirm"
-            cancelText="Cancel"
-          >
-            <p>Are you sure you want to shut down the bot?</p>
-          </Modal>
+          <Switch
+            disabled={!botConfig.activeChain.rpc}
+            checked={botStatus}
+            loading={isLoading}
+            onChange={handleToggleStatus}
+            checkedChildren="ON"
+            unCheckedChildren="OFF"
+          />
         </Space>
       </Space>
     </Space>

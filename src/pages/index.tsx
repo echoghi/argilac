@@ -1,20 +1,65 @@
 import Head from 'next/head';
-import useSWR from 'swr';
+import useSWR, { SWRConfig } from 'swr';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 
 import styles from '../styles/Home.module.css';
 import Header from '../components/Header';
-import DataTable from '../components/DataTable/DataTable';
+import Trades from '../components/Trades';
 import ControlPanel from '../components/ControlPanel';
 import LogsTable from '../components/LogsTable';
 import fetcher from '../lib/fetcher';
+import { IncomingMessage } from 'http';
+import { NextPageContext } from 'next';
+import Assets from '../components/Assets';
 
-export default function Home() {
-  const { data, error, isLoading } = useSWR('/api/data', fetcher, { refreshInterval: 30000 });
+interface MyIncomingMessage extends IncomingMessage {
+  cookies: any;
+}
+
+interface MainContext extends NextPageContext {
+  req: MyIncomingMessage;
+}
+
+export async function getServerSideProps(context: MainContext) {
+  function returnUrl(context: MainContext) {
+    if (process.env.NODE_ENV === 'production') {
+      return `https://${context.req.rawHeaders[1]}`;
+    } else {
+      return 'http://localhost:80';
+    }
+  }
+
+  let baseUrl = returnUrl(context);
+  // `getStaticProps` is executed on the server side.
+  const data = await fetcher(`${baseUrl}/api/data`);
+  const logs = await fetcher(`${baseUrl}/api/logs`);
+  const status = await fetcher(`${baseUrl}/api/status`);
+  const config = await fetcher(`${baseUrl}/api/config`);
+  const chain = await fetcher(`${baseUrl}/api/chain`);
+  const assets = await fetcher(`${baseUrl}/api/assets`);
+
+  return {
+    props: {
+      fallback: {
+        '/api/data': data,
+        '/api/logs': logs,
+        '/api/status': status,
+        '/api/config': config,
+        '/api/chain': chain,
+        '/api/assets': assets
+      }
+    }
+  };
+}
+
+export default function Home({ fallback }: { fallback: any }) {
+  const { data, error, isLoading } = useSWR('/api/data', fetcher, { refreshInterval: 60000 });
+  const assetData = useSWR('/api/assets', fetcher, { refreshInterval: 60000 });
   const errorLogs = useSWR('/api/logs', fetcher, { refreshInterval: 60000 });
   const trades = data?.trades || [];
   const logs: any = errorLogs?.data?.logs || [];
+  const assets: any = assetData?.data?.assets || [];
 
   const items: TabsProps['items'] = [
     {
@@ -25,7 +70,7 @@ export default function Home() {
     {
       key: '2',
       label: `Trades`,
-      children: <DataTable data={trades} />
+      children: <Trades data={trades} />
     },
     {
       key: '3',
@@ -35,7 +80,7 @@ export default function Home() {
     {
       key: '4',
       label: `Assets`,
-      children: `Content of Tab Pane 3`
+      children: <Assets data={assets} />
     }
   ];
 
@@ -47,25 +92,27 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <Header />
+      <SWRConfig value={{ fallback }}>
+        <main className={styles.main}>
+          <Header />
 
-        <div className={styles.grid}>
-          <Tabs
-            defaultActiveKey="1"
-            items={items}
-            className={styles.fullWidthTabs}
-            style={{ width: '100%' }}
-          />
-        </div>
-      </main>
+          <div className={styles.grid}>
+            <Tabs
+              defaultActiveKey="1"
+              items={items}
+              className={styles.fullWidthTabs}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </main>
 
-      <footer className={styles.footer}>
-        Made with love by{' '}
-        <a href="https://rennalabs.xyz" target="_blank" rel="noopener noreferrer">
-          Renna Labs
-        </a>
-      </footer>
+        <footer className={styles.footer}>
+          Made with love by{' '}
+          <a href="https://rennalabs.xyz" target="_blank" rel="noopener noreferrer">
+            Renna Labs
+          </a>
+        </footer>
+      </SWRConfig>
     </div>
   );
 }

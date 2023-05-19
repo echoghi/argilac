@@ -1,9 +1,9 @@
 {
-  "positionOpen": true,
-  "stablecoinBalance": 244.659088,
-  "tokenBalance": 0.000091241252120793,
-  "lastTrade": "Position opened at 1848.91",
-  "lastTradeTime": "[5/9/2023, 12:55:37 PM]",
-  "lastTradePrice": "1848.91",
-  "PNL": 1826.9316000000001
+  "positionOpen": false,
+  "stablecoinBalance": 468.766714,
+  "tokenBalance": 0,
+  "lastTrade": "Position closed at 1812.4",
+  "lastTradeTime": "[5/18/2023, 3:03:51 PM]",
+  "lastTradePrice": "1812.4",
+  "PNL": 6400.025362
 }

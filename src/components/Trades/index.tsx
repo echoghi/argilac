@@ -1,7 +1,11 @@
-// components/DataTable.tsx
+// components/Trades.tsx
 import React from 'react';
-import { Space, Table, Tag } from 'antd';
-import styles from './DataTable.module.css';
+import { LinkOutlined } from '@ant-design/icons';
+import { Alert, Divider, Space, Table, Tag, Typography } from 'antd';
+
+const { Title } = Typography;
+
+import styles from './Trades.module.css';
 
 interface DataType {
   key: React.Key;
@@ -14,11 +18,11 @@ interface DataType {
   chain: string;
 }
 
-interface DataTableProps {
+interface TradesProps {
   data: DataType[];
 }
 
-const DataTable: React.FC<DataTableProps> = ({ data }) => {
+const Trades: React.FC<TradesProps> = ({ data }) => {
   const columns = [
     {
       title: 'Type',
@@ -33,7 +37,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
       key: 'chain'
     },
     {
-      title: 'Asset In',
+      title: 'Asset Received',
       dataIndex: 'in',
       key: 'in'
     },
@@ -69,7 +73,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
             rel="noreferrer noopener"
             className={link === '' ? styles.disabledTxLink : styles.txLink}
           >
-            Transaction
+            <LinkOutlined style={{ fontSize: 18 }} />
           </a>
         </Space>
       )
@@ -78,9 +82,19 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
 
   return (
     <div className={styles.table}>
+      <Title level={4}>Trade History</Title>
+      <div>
+        <Alert
+          message="Every trade listed was created using Argilac. Other transactions from your wallet are not included."
+          type="info"
+          showIcon
+          closable
+        />
+      </div>
+      <Divider />
       <Table<DataType> columns={columns} dataSource={data} />
     </div>
   );
 };
 
-export default DataTable;
+export default Trades;

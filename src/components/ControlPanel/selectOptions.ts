@@ -34,7 +34,7 @@ export const sizeOptions = [
   { value: '0.05', label: '5%' },
   { value: '0.10', label: '10%' },
   { value: '0.25', label: '25%' },
-  { value: '0.50', label: '50%' },
+  { value: '0.5', label: '50%' },
   { value: '0.75', label: '75%' },
   { value: '1', label: '100%' }
 ];

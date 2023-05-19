@@ -17,7 +17,7 @@ const ProjectSelect = ({ onChange, options, defaultValue }: ProjectSelectProps) 
         size="large"
         defaultValue={defaultValue}
         onChange={onChange}
-        style={{ width: 250 }}
+        style={{ minWidth: 250, width: '100%' }}
         options={options}
       />
     </>
