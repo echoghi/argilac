@@ -10,7 +10,6 @@
   "exchange": "UNISWAP",
   "tokens": {
     "stablecoin": "USDC",
-    "amountIn": 10,
     "token": "WETH"
   },
   "strategy": {
