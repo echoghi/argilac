@@ -28,6 +28,8 @@ A crypto trading bot that automates trades based on TradingView alerts.
 3. Add your API key as `TELEGRAM_BOT_TOKEN` and chat ID as `TELEGRAM_CHAT_ID` in your `.env` file.
 4. The bot will send notifications for buys, sells, errors, and insufficient balance (out of gas) to Telegram. If you don't provide an API key or chat ID, Telegram notifications will be disabled.
 
-### 3. Start the Bot and Profit!
+### 4. Start the Bot and Profit!
 
 1. Start the bot by toggling the switch in the Controls section of the Control Panel tab. You can now monitor for incoming trades in the Trades tab and see detailed error/event logs in the Logs tab. You can also see logs in the server output.
+
+> Note: Argilac currently only includes support for WETH, MATIC, USDC, and DAI on the Ethereum and Polygon mainnets and testnets. Additional tokens can be added in the config folder and in the ControlPanel component. Support for more tokens, chains, and DEXs coming soon.
