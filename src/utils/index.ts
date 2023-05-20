@@ -5,6 +5,7 @@ import { ERC20_ABI, V3_SWAP_ROUTER_ADDRESS } from '../constants';
 import { getProvider, ethersProvider, walletAddress } from '../lib/provider';
 import { getToken } from '../lib/token';
 import { getConfig } from '../lib/getConfig';
+import Logger from '../lib/logger';
 
 const MAX_DECIMALS = 4;
 
@@ -57,9 +58,15 @@ export async function getTokenBalance(
   abi: any,
   provider: ethers.providers.Provider = getProvider()
 ): Promise<number> {
-  const tokenContract = new ethers.Contract(tokenAddress, abi, provider);
+  let balance = 0;
 
-  const balance = await tokenContract.balanceOf(address);
+  try {
+    const tokenContract = new ethers.Contract(tokenAddress, abi, provider);
+
+    balance = await tokenContract.balanceOf(address);
+  } catch (e: any) {
+    Logger.error(`Error getting token balance: ${e.message}`);
+  }
 
   return Number(balance);
 }
