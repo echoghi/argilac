@@ -10,10 +10,11 @@ A crypto trading bot that automates trades based on TradingView alerts.
 
 1. Install [Ngrok](https://ngrok.com), create an account, and set up an auth token.
 2. Create a `.env` file and add the following variables: `MNEMONIC`, `ETHERSCAN_KEY`, and `POLYGONSCAN_KEY`.
-3. Start the app by running `yarn start`, your dashboard should now be up and running at https://localhost:80.
-4. Launch Ngrok with `yarn ngrok` to expose your server on port 80.
+3. Create a `chainData.json` file based on the `chainData.default.json` file in the `src/config` folder.
+4. Start the app by running `yarn start`, your dashboard should now be up and running at https://localhost:80.
+5. Launch Ngrok with `yarn ngrok` to expose your server on port 80.
    > **Note:** TradingView only accepts URLs with port numbers 80 and 443. More info [here](https://www.tradingview.com/support/solutions/43000529348-about-webhooks/)
-5. Review and customize your preferences in the Control Panel section.
+6. Review and customize your preferences in the Control Panel section.
 
 ### 2. TradingView Alerts Setup
 
