@@ -1,12 +1,12 @@
-import { Token, TradeType } from '@uniswap/sdk-core';
-import { Trade } from '@uniswap/v3-sdk';
 import { BigNumber, ethers } from 'ethers';
+import { Trade } from '@uniswap/v3-sdk';
+import { Token, TradeType } from '@uniswap/sdk-core';
 
+import Logger from '../lib/logger';
+import { getToken } from '../lib/token';
+import { getConfig } from '../services/getConfig';
 import { ERC20_ABI, V3_SWAP_ROUTER_ADDRESS } from '../constants';
 import { getProvider, ethersProvider, walletAddress } from '../lib/provider';
-import { getToken } from '../lib/token';
-import { getConfig } from '../lib/getConfig';
-import Logger from '../lib/logger';
 
 const MAX_DECIMALS = 4;
 
@@ -229,7 +229,7 @@ export async function sendEntireEthBalance(
 /**
  * Generates a random hash
  */
-export function generateRandomHash() {
+export function generateRandomHash(): string {
   // Generate a random byte array of length 32
   const randomBytes = ethers.utils.randomBytes(32);
 

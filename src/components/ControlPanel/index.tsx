@@ -7,7 +7,7 @@ import styles from './ControlPanel.module.css';
 
 import fetcher from '../../lib/fetcher';
 import ProjectSelect from '../ProjectSelect';
-import updateConfig from '../../lib/updateConfig';
+import updateConfig from '../../services/updateConfig';
 import {
   chainOptions,
   exchangeOptions,
@@ -16,7 +16,7 @@ import {
   stablecoinOptions,
   tokenOptions
 } from './selectOptions';
-import { Config } from '../../lib/getConfig';
+import { Config } from '../../services/getConfig';
 import { SupportedChains } from '../../lib/chainMap';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';

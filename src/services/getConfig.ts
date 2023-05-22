@@ -1,7 +1,7 @@
 import fs from 'fs';
 
-import Logger from './logger';
-import { SupportedChains } from './chainMap';
+import Logger from '../lib/logger';
+import { SupportedChains } from '../lib/chainMap';
 
 export interface Config {
   exchange: string;

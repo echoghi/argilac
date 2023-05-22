@@ -1,5 +1,5 @@
-import { chainSwitch, SupportedChains } from './chainMap';
-import Logger from './logger';
+import { chainSwitch, SupportedChains } from '../lib/chainMap';
+import Logger from '../lib/logger';
 
 export async function getTokenPrices(addresses: string[], network = 'ethereum') {
   const tokenPriceUrl = `https://api.coingecko.com/api/v3/simple/token_price/${network}?contract_addresses=${addresses.join(

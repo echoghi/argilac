@@ -2,10 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import Logger from '../../lib/logger';
-import { buy } from '../../lib/buy';
-import { sell } from '../../lib/sell';
-import { hasGasMoney } from '../../utils';
-import sendTelegramAlert from '../../lib/sendTelegramAlert';
+import { buy } from '../../trading/buy';
+import { sell } from '../../trading/sell';
+import { hasGasMoney } from '../../trading/utils';
+import sendTelegramAlert from '../../services/sendTelegramAlert';
 import { getStatus } from '../../lib/log';
 
 type Data = {

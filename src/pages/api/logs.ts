@@ -1,11 +1,12 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { generateRandomHash } from '../../utils';
+
 import Logger from '../../lib/logger';
+import { generateRandomHash } from '../../trading/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const jsonDirectory = path.join(process.cwd(), 'src', 'logs');
+  const jsonDirectory = path.join(process.cwd(), 'logs');
   const isFetch = req?.method === 'GET';
 
   if (isFetch) {

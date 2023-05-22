@@ -3,10 +3,10 @@ import { ethers } from 'ethers';
 
 import { ERC20_ABI } from '../../constants';
 import { walletAddress } from '../../lib/provider';
-import { getChainData } from '../../lib/getConfig';
-import { getTokenBalance, formatBalance } from '../../utils';
-import { getNativeBalance } from '../../lib/getNativeBalance';
-import { getEthPrice, getMaticPrice } from '../../lib/getTokenPrices';
+import { getChainData } from '../../services/getConfig';
+import { getTokenBalance, formatBalance } from '../../trading/utils';
+import { getNativeBalance } from '../../services/getNativeBalance';
+import { getEthPrice, getMaticPrice } from '../../services/getTokenPrices';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const chainData = getChainData();

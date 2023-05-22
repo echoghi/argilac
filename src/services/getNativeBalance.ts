@@ -1,6 +1,6 @@
-import { SupportedChains, chainSwitch } from './chainMap';
-import Logger from './logger';
-import { web3 } from './provider';
+import { SupportedChains, chainSwitch } from '../lib/chainMap';
+import Logger from '../lib/logger';
+import { web3 } from '../lib/provider';
 
 export async function getNativeBalance(
   address: string,

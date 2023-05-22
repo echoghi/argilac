@@ -15,7 +15,7 @@ import {
   getProvider,
   walletAddress,
   TransactionInfo
-} from './provider';
+} from '../lib/provider';
 import {
   MAX_FEE_PER_GAS,
   MAX_PRIORITY_FEE_PER_GAS,
@@ -23,10 +23,10 @@ import {
   TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
   V3_SWAP_ROUTER_ADDRESS
 } from '../constants';
-import { checkAllowance, fromReadableAmount } from '../utils';
-import Logger from './logger';
-import { trackError } from './log';
-import { getConfig } from './getConfig';
+import { checkAllowance, fromReadableAmount } from './utils';
+import Logger from '../lib/logger';
+import { trackError } from '../lib/log';
+import { getConfig } from '../services/getConfig';
 
 export async function generateRoute(
   tokenIn: Token,

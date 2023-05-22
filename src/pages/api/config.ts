@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import Logger from '../../lib/logger';
 import { trackError } from '../../lib/log';
-import { getChainData, getConfig } from '../../lib/getConfig';
+import { getChainData, getConfig } from '../../services/getConfig';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const jsonDirectory = path.join(process.cwd(), 'src', 'config');

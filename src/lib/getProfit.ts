@@ -1,5 +1,5 @@
 import { SupportedChains } from './chainMap';
-import { getPriceAtTxTime } from './getTokenPrices';
+import { getPriceAtTxTime } from '../services/getTokenPrices';
 import { getLastTrade } from './log';
 import Logger from './logger';
 

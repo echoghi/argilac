@@ -3,9 +3,9 @@ import { FeeAmount, computePoolAddress } from '@uniswap/v3-sdk';
 import { ethers } from 'ethers';
 
 import { POOL_FACTORY_CONTRACT_ADDRESS } from '../constants';
-import { getProvider } from './provider';
-import { getToken } from './token';
-import { getConfig } from './getConfig';
+import { getProvider } from '../lib/provider';
+import { getToken } from '../lib/token';
+import { getConfig } from '../services/getConfig';
 
 interface PoolInfo {
   token0: string;

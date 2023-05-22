@@ -1,22 +1,22 @@
 import { ERC20_ABI } from '../constants';
-import { getLog, saveLog, saveTrade, trackError } from './log';
-import Logger from './logger';
-import { walletAddress } from './provider';
+import { getLog, saveLog, saveTrade, trackError } from '../lib/log';
+import Logger from '../lib/logger';
+import { walletAddress } from '../lib/provider';
 import { executeRoute, generateRoute } from './routing';
-import sendTelegramAlert from './sendTelegramAlert';
+import sendTelegramAlert from '../services/sendTelegramAlert';
 import {
   formatBalance,
   generateRandomHash,
   getGasUsed,
   getTokenBalance,
   getTokenBalances
-} from '../utils';
-import { getToken } from './token';
-import { getConfig } from './getConfig';
-import { getProfit } from './getProfit';
+} from './utils';
+import { getToken } from '../lib/token';
+import { getConfig } from '../services/getConfig';
+import { getProfit } from '../lib/getProfit';
 
 /**
- * Executes a sell order by swapping WETH for USDC, updates the log, and sends an alert with the result.
+ * Executes a sell order by swapping a token for a stablecoin, updates the log, and sends an alert with the result.
  *
  * @param {string} price - The price at which the position is being closed.
  * @throws Will throw an error if the sell order fails or the trade is cancelled.

@@ -37,6 +37,6 @@ yarn-error.log*
 next-env.d.ts
 
 # logs
-/src/logs/*.json
+/logs/*.json
 /src/config/config.json
 /src/config/chainData.json

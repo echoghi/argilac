@@ -1,7 +1,7 @@
 import { ethers, BigNumber, providers, Wallet } from 'ethers';
 import { BaseProvider } from '@ethersproject/providers';
 import Web3 from 'web3';
-import { getConfig } from './getConfig';
+import { getConfig } from '../services/getConfig';
 
 require('dotenv').config();
 

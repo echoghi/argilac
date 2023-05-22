@@ -1,5 +1,5 @@
 import { getConfig } from './getConfig';
-import Logger from './logger';
+import Logger from '../lib/logger';
 
 require('dotenv').config();
 

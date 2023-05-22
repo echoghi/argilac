@@ -1,8 +1,8 @@
 import fs from 'fs';
 
 import Logger from './logger';
-import { generateRandomHash } from '../utils';
-import { getConfig } from './getConfig';
+import { generateRandomHash } from '../trading/utils';
+import { getConfig } from '../services/getConfig';
 
 interface Log {
   positionOpen: boolean;
@@ -53,7 +53,7 @@ export function getLog(): Log {
   };
 
   try {
-    const logJSON = fs.readFileSync('./src/logs/log.json', 'utf-8');
+    const logJSON = fs.readFileSync('./logs/log.json', 'utf-8');
     log = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading log.json');
@@ -72,7 +72,7 @@ export function getTrades(): Trade[] {
   let trades = [];
 
   try {
-    const logJSON = fs.readFileSync('./src/logs/trades.json', 'utf-8');
+    const logJSON = fs.readFileSync('./logs/trades.json', 'utf-8');
     trades = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading trades.json');
@@ -103,7 +103,7 @@ export function getLastTrade(): Trade {
  */
 export function saveLog(newLog: Log) {
   try {
-    fs.writeFileSync(`./src/logs/log.json`, JSON.stringify(newLog, null, 2));
+    fs.writeFileSync(`./logs/log.json`, JSON.stringify(newLog, null, 2));
   } catch (e) {
     Logger.error('Error saving log.json');
   }
@@ -120,7 +120,7 @@ export function saveTrade(newTrade: Trade) {
     const trades = getTrades();
     trades.unshift(newTrade);
 
-    fs.writeFileSync(`./src/logs/trades.json`, JSON.stringify(trades, null, 2));
+    fs.writeFileSync(`./logs/trades.json`, JSON.stringify(trades, null, 2));
   } catch (e) {
     Logger.error('Error saving trades.json');
   }
@@ -134,7 +134,7 @@ export function getErrorLog(): Error[] {
   let errors = [];
 
   try {
-    const logJSON = fs.readFileSync('./src/logs/error-log.json', 'utf-8');
+    const logJSON = fs.readFileSync('./logs/error-log.json', 'utf-8');
     errors = JSON.parse(logJSON);
   } catch (e) {
     Logger.error('Error reading error-log.json');
@@ -156,7 +156,7 @@ export function trackError(error: Error) {
       key: generateRandomHash()
     });
 
-    fs.writeFileSync(`./src/logs/error-log.json`, JSON.stringify(errors, null, 2));
+    fs.writeFileSync(`./logs/error-log.json`, JSON.stringify(errors, null, 2));
   } catch (e) {
     Logger.error('Error saving log.json');
   }

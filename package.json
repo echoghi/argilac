@@ -9,7 +9,7 @@
     "lint": "next lint",
     "clean": "rm -rf .next node_modules",
     "ngrok": "ngrok http 80",
-    "apiKey": "esno ./src/lib/genApiKey.ts"
+    "apiKey": "esno ./src/services/genApiKey.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",

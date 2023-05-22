@@ -1,4 +1,4 @@
-import { Trade } from './log';
+import { Trade } from '../lib/log';
 
 export function getStats(trades: Trade[]) {
   let chainCount: any = {};

@@ -21,7 +21,7 @@ import {
 } from 'antd';
 
 import styles from './LogsTable.module.css';
-import clearErrorLogs from '../../lib/clearErrorLogs';
+import clearErrorLogs from '../../services/clearErrorLogs';
 import fetcher from '../../lib/fetcher';
 
 const { Title } = Typography;

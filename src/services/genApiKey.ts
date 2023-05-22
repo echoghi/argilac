@@ -1,5 +1,5 @@
-import { generateRandomHash } from '../utils';
-import Logger from './logger';
+import { generateRandomHash } from '../trading/utils';
+import Logger from '../lib/logger';
 
 function genApiKey() {
   const hash = generateRandomHash();

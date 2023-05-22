@@ -1,5 +1,6 @@
 import { IncomingMessage } from 'http';
 import { NextPageContext } from 'next';
+import { useRouter } from 'next/router';
 import useSWR, { SWRConfig } from 'swr';
 import type { TabsProps } from 'antd';
 import Head from 'next/head';
@@ -12,7 +13,6 @@ import ControlPanel from '../components/ControlPanel';
 import LogsTable from '../components/Logs';
 import fetcher from '../lib/fetcher';
 import Assets from '../components/Assets';
-import { useRouter } from 'next/router';
 
 interface MyIncomingMessage extends IncomingMessage {
   cookies: any;
