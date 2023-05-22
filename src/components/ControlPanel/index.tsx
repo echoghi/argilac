@@ -1,12 +1,12 @@
-import { Button, Input, Space, Switch, Tag, notification } from 'antd';
 import useSWR from 'swr';
+import { useState } from 'react';
 import { Draft, produce } from 'immer';
+import { Button, Input, Space, Spin, Switch, Tag, notification } from 'antd';
 
 import styles from './ControlPanel.module.css';
-import ProjectSelect from '../ProjectSelect';
 
 import fetcher from '../../lib/fetcher';
-import { useState } from 'react';
+import ProjectSelect from '../ProjectSelect';
 import updateConfig from '../../lib/updateConfig';
 import {
   chainOptions,
@@ -16,7 +16,8 @@ import {
   stablecoinOptions,
   tokenOptions
 } from './selectOptions';
-import { Config } from '../../lib/provider';
+import { Config } from '../../lib/getConfig';
+import { SupportedChains } from '../../lib/chainMap';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -78,7 +79,7 @@ const ControlPanel = () => {
       type: 'BOT_STATUS',
       message: checked ? 'Bot started via control panel' : 'Bot stopped via control panel',
       // @ts-ignore
-      chain: updatedConfig.activeChain.name
+      chain: updatedConfig.activeChain.displayName
     };
 
     await handleUpdateConfig(updatedConfig, log);
@@ -92,7 +93,7 @@ const ControlPanel = () => {
     await handleUpdateConfig(updatedConfig);
   };
 
-  const handleChainChange = async (value: string) => {
+  const handleChainChange = async (value: SupportedChains) => {
     let chainInfo = chainData?.data?.chainData;
 
     const updatedConfig = produce(config.data.config, (draft: Draft<Config>) => {
@@ -155,15 +156,20 @@ const ControlPanel = () => {
     await handleUpdateConfig(updatedConfig);
   };
 
-  if (!botConfig || config.isLoading) return <div>Loading...</div>;
+  if (!botConfig || config.isLoading)
+    return (
+      <div className={styles.loadingContainer}>
+        <Spin />
+      </div>
+    );
 
   return (
     <Space direction="vertical">
       {contextHolder}
       <Space direction="horizontal" align="center">
         <h1 className={styles.title}>Project Details</h1>
-        <Tag color={botConfig.status ? 'green' : 'volcano'}>
-          {botConfig.status ? 'Active' : 'Halted'}
+        <Tag color={botConfig.status ? 'geekblue' : 'volcano'}>
+          {botConfig.status ? 'Running' : 'Halted'}
         </Tag>
       </Space>
       <Space direction="horizontal" size="large">

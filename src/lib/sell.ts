@@ -4,9 +4,16 @@ import Logger from './logger';
 import { walletAddress } from './provider';
 import { executeRoute, generateRoute } from './routing';
 import sendTelegramAlert from './sendTelegramAlert';
-import { formatBalance, generateRandomHash, getTokenBalance, getTokenBalances } from '../utils';
+import {
+  formatBalance,
+  generateRandomHash,
+  getGasUsed,
+  getTokenBalance,
+  getTokenBalances
+} from '../utils';
 import { getToken } from './token';
 import { getConfig } from './getConfig';
+import { getProfit } from './getProfit';
 
 /**
  * Executes a sell order by swapping WETH for USDC, updates the log, and sends an alert with the result.
@@ -47,12 +54,14 @@ export async function sell(price: string) {
 
   if (route && hasBalance && log.positionOpen) {
     try {
-      // Sell all WETH for USDC
+      // Sell all tokens for stablecoins
       const res = await executeRoute(route, token, formattedBalance);
 
       if (!res.hash) return;
 
       const { formattedStablecoinBalance, formattedTokenBalance } = await getTokenBalances();
+
+      const amountIn = formattedStablecoinBalance - formattedOldStableBalance;
 
       const lastTradeTime = new Date().toLocaleString();
 
@@ -68,6 +77,16 @@ export async function sell(price: string) {
       const key = generateRandomHash();
       const link = `${config?.activeChain.explorer}tx/${res.hash}`;
 
+      const message = `${formattedBalance} ${token.symbol} sold at ${price}: ${link}`;
+      sendTelegramAlert(message);
+      Logger.success(message);
+
+      const gasUsed = await getGasUsed(res.hash);
+
+      const profit = await getProfit(res.hash, gasUsed, amountIn, config?.activeChain.name);
+
+      if (profit) Logger.success(`Trade PnL: ${profit}`);
+
       saveTrade({
         type: 'Sell',
         key,
@@ -75,13 +94,11 @@ export async function sell(price: string) {
         date: lastTradeTime,
         link,
         chain,
-        in: `${formattedStablecoinBalance - formattedOldStableBalance} ${stablecoin.symbol}`,
-        out: `${formattedBalance} ${token.symbol}`
+        in: `${amountIn} ${stablecoin.symbol}`,
+        out: `${formattedBalance} ${token.symbol}`,
+        gasUsed,
+        profit
       });
-
-      const message = `${formattedBalance} ${token.symbol} sold at ${price}. ${link}`;
-      sendTelegramAlert(message);
-      Logger.success(message);
     } catch (e: any) {
       Logger.error('Sell order failed');
 

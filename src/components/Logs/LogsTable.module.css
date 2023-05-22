@@ -6,3 +6,7 @@
 .errorMessage {
   cursor: pointer;
 }
+
+.alertContainer {
+  margin: 20px 0;
+}

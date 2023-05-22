@@ -1,11 +1,12 @@
 import fs from 'fs';
 
 import Logger from './logger';
+import { SupportedChains } from './chainMap';
 
 export interface Config {
   exchange: string;
   activeChain: {
-    name: string;
+    name: SupportedChains;
     rpc: string;
     explorer: string;
     displayName: string;

@@ -2,6 +2,7 @@ import fs from 'fs';
 
 import Logger from './logger';
 import { generateRandomHash } from '../utils';
+import { getConfig } from './getConfig';
 
 interface Log {
   positionOpen: boolean;
@@ -13,14 +14,19 @@ interface Log {
   PNL?: number;
 }
 
-interface Trade {
+export interface Trade {
+  [key: string]: string | number | undefined;
   key: string;
   type: string;
   price: string;
   date: string;
   in: string;
   out: string;
+  costBasis?: number;
+  amountOut?: number;
+  gasUsed: number;
   link: string;
+  profit?: number;
   chain: string | undefined;
 }
 
@@ -62,7 +68,6 @@ export function getLog(): Log {
  * @returns {Trades} An object containing the trade data.
  *
  */
-
 export function getTrades(): Trade[] {
   let trades = [];
 
@@ -74,6 +79,20 @@ export function getTrades(): Trade[] {
   }
 
   return trades;
+}
+
+/**
+ * Returns the most recent trade
+ *
+ * @returns {Trade} An object containing the trade data.
+ *
+ */
+export function getLastTrade(): Trade {
+  const trades = getTrades();
+
+  if (!trades.length) return {} as Trade;
+
+  return trades[0];
 }
 
 /**
@@ -151,11 +170,10 @@ export function getStatus(): boolean {
   let status = false;
 
   try {
-    const statusJSON = fs.readFileSync('./src/logs/status.json', 'utf-8');
-    const currentStatus = JSON.parse(statusJSON);
-    status = currentStatus.status;
+    const config = getConfig();
+    status = config?.status || false;
   } catch (e) {
-    Logger.error('Error reading status.json');
+    Logger.error('Error reading status from config.json');
   }
 
   return status;

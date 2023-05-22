@@ -1,6 +1,7 @@
 import { Token, TradeType } from '@uniswap/sdk-core';
 import { Trade } from '@uniswap/v3-sdk';
 import { BigNumber, ethers } from 'ethers';
+
 import { ERC20_ABI, V3_SWAP_ROUTER_ADDRESS } from '../constants';
 import { getProvider, ethersProvider, walletAddress } from '../lib/provider';
 import { getToken } from '../lib/token';
@@ -28,7 +29,7 @@ export function fromReadableAmount(amount: number, decimals: number): BigNumber 
  * @param decimals The number of decimals in the token's value.
  * @returns A formatted string representing the human-readable amount.
  */
-export function toReadableAmount(rawAmount: number, decimals: number): string {
+export function toReadableAmount(rawAmount: BigNumber, decimals: number): string {
   return ethers.utils.formatUnits(rawAmount, decimals).slice(0, MAX_DECIMALS);
 }
 
@@ -236,4 +237,28 @@ export function generateRandomHash() {
   const randomHash = ethers.utils.keccak256(randomBytes);
 
   return randomHash;
+}
+
+/**
+ * Retrieves the gas used by a transaction.
+ * @param {ethers.providers.Provider} provider - The provider instance to interact with the Ethereum network
+ * @param {string} txHash - The hash of the transaction to retrieve the gas used.
+ * @returns {Promise<number>} Logs the gas used by the transaction, formatted as Ether.
+ */
+export async function getGasUsed(
+  txHash: string,
+  provider: ethers.providers.Provider = getProvider()
+): Promise<number> {
+  let gasUsedFormatted = 0;
+
+  try {
+    const receipt = await provider.getTransactionReceipt(txHash);
+    const gasCost = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+
+    gasUsedFormatted = parseFloat(ethers.utils.formatUnits(gasCost, 18));
+  } catch (e: any) {
+    Logger.error(`Error retrieving gas used for transaction ${txHash}: ${e.message}`);
+  }
+
+  return gasUsedFormatted;
 }

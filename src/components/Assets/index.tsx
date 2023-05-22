@@ -1,7 +1,8 @@
-// components/DataTable.tsx
 import React from 'react';
+import useSWR from 'swr';
 import { Alert, Divider, Table, Tag, Typography } from 'antd';
 import styles from '../Trades/Trades.module.css';
+import fetcher from '../../lib/fetcher';
 
 const { Title } = Typography;
 
@@ -14,15 +15,15 @@ interface DataType {
   balance: string;
 }
 
-interface DataTableProps {
-  data: DataType[];
-}
-
 const typeCheck = (type: string) => (type.includes('Testnet') ? 'volcano' : 'green');
 const renderValue = (price: number, balance: number) =>
   price && balance ? `$${Number(price * balance).toFixed(2)}` : 'N/A';
 
-const Assets: React.FC<DataTableProps> = ({ data }) => {
+const Assets = () => {
+  const assetData = useSWR('/api/assets', fetcher, { refreshInterval: 60000 });
+
+  const data: any = assetData?.data?.assets || [];
+
   const columns = [
     {
       title: 'Type',

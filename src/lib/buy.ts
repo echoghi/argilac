@@ -8,11 +8,13 @@ import {
   formatBalance,
   generateRandomHash,
   getBuyAmount,
+  getGasUsed,
   getTokenBalance,
   getTokenBalances
 } from '../utils';
 import { getToken } from './token';
 import { getConfig } from './getConfig';
+import { getCostBasis } from './getProfit';
 
 /**
  * Executes a buy order by swapping USDC for WETH, updates the log, and sends an alert with the result.
@@ -72,6 +74,20 @@ export async function buy(price: string) {
       const key = generateRandomHash();
       const link = `${config?.activeChain.explorer}tx/${res.hash}`;
 
+      sendTelegramAlert(
+        `Position opened at ${price} (${formattedTokenBalance.toFixed(5)} WETH). ${link}`
+      );
+
+      Logger.success(`Buy order executed: ${link}`);
+
+      const gasUsed = await getGasUsed(res.hash);
+      const costBasis = await getCostBasis(
+        res.hash,
+        gasUsed,
+        tradeAmount,
+        config?.activeChain.name
+      );
+
       saveTrade({
         type: 'Buy',
         key,
@@ -80,14 +96,11 @@ export async function buy(price: string) {
         chain,
         date: new Date().toLocaleString(),
         in: `${formattedTokenBalance} ${token.symbol}`,
-        out: `${tradeAmount} ${stablecoin.symbol}`
+        out: `${tradeAmount} ${stablecoin.symbol}`,
+        amountOut: tradeAmount,
+        gasUsed,
+        costBasis
       });
-
-      sendTelegramAlert(
-        `Position opened at ${price} (${formattedTokenBalance.toFixed(5)} WETH). ${link}`
-      );
-
-      Logger.success(`Buy order executed: ${link}`);
     } catch (e: any) {
       Logger.error('Buy order failed');
 

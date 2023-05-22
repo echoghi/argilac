@@ -12,15 +12,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const fileContents = await fs.readFile(jsonDirectory + '/error-log.json', 'utf8');
     const logs = JSON.parse(fileContents);
 
-    // assign a key property to each log for table rendering
+    // Initialize an empty stats object
+    let stats: any = {};
+
+    // Assign a key property to each log for table rendering
     logs.map((log: any) => {
       if (!log.key) {
         log.key = generateRandomHash();
       }
+
+      // If the log type exists in the stats object, increment its count
+      // Otherwise, initialize it to 1
+      if (log.type) {
+        stats[log.type] = (stats[log.type] || 0) + 1;
+      }
+
+      // Add a manual type 'NETWORK' if the log message includes 'code=NETWORK_ERROR'
+      if (log.message && log.message.includes('code=NETWORK_ERROR')) {
+        stats['NETWORK'] = (stats['NETWORK'] || 0) + 1;
+      }
+
+      // Add a manual type 'ROUTING' if the log type is 'EXEC_ROUTE' or 'GEN_ROUTE'
+      if (log.type === 'EXEC_ROUTE' || log.type === 'GEN_ROUTE') {
+        stats['ROUTING'] = (stats['ROUTING'] || 0) + 1;
+      }
     });
 
     //Return the content of the data file in json format
-    res.status(200).json({ logs });
+    res.status(200).json({ logs, stats });
   } else {
     const clearLogs = req?.body?.action === 'delete';
 

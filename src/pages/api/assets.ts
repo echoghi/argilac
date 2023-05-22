@@ -14,8 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const goerliProvider = new ethers.providers.JsonRpcProvider(chainData?.ETH_GOERLI.RPC);
 
   // Native balances
-  const mumbaiBalance = await getNativeBalance(walletAddress, 'polygon-mumbai');
-  const goerliBalance = await getNativeBalance(walletAddress, 'goerli-eth');
+  const mumbaiBalance = await getNativeBalance(walletAddress, 'POLYGON_MUMBAI');
+  const goerliBalance = await getNativeBalance(walletAddress, 'ETH_GOERLI');
 
   // Token balances
   const goerliUsdcBalance = await getTokenBalance(

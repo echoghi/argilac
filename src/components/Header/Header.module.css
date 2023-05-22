@@ -23,7 +23,9 @@
   color: #676767;
 }
 
-.logoContainer {
-  border-radius: 6px;
-  overflow: hidden;
+.badgeContainer {
+  position: absolute;
+  top: -9px;
+  z-index: 2;
+  right: -4px;
 }

@@ -9,3 +9,11 @@
   margin-bottom: 0;
   font-weight: 500;
 }
+
+.loadingContainer {
+  display: flex;
+  height: 600px;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 50px;
+}

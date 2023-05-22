@@ -9,9 +9,10 @@ import styles from '../styles/Home.module.css';
 import Header from '../components/Header';
 import Trades from '../components/Trades';
 import ControlPanel from '../components/ControlPanel';
-import LogsTable from '../components/LogsTable';
+import LogsTable from '../components/Logs';
 import fetcher from '../lib/fetcher';
 import Assets from '../components/Assets';
+import { useRouter } from 'next/router';
 
 interface MyIncomingMessage extends IncomingMessage {
   cookies: any;
@@ -31,17 +32,20 @@ export async function getServerSideProps(context: MainContext) {
   }
 
   let baseUrl = returnUrl(context);
-  // `getStaticProps` is executed on the server side.
-  const data = await fetcher(`${baseUrl}/api/data`);
+
+  const trades = await fetcher(`${baseUrl}/api/trades`);
   const logs = await fetcher(`${baseUrl}/api/logs`);
   const config = await fetcher(`${baseUrl}/api/config`);
   const chain = await fetcher(`${baseUrl}/api/chain`);
   const assets = await fetcher(`${baseUrl}/api/assets`);
 
+  const activeTab = context.query.tab || 'settings';
+
   return {
     props: {
+      activeTab,
       fallback: {
-        '/api/data': data,
+        '/api/trades': trades,
         '/api/logs': logs,
         '/api/config': config,
         '/api/chain': chain,
@@ -51,36 +55,45 @@ export async function getServerSideProps(context: MainContext) {
   };
 }
 
-export default function Home({ fallback }: { fallback: any }) {
-  const { data } = useSWR('/api/data', fetcher, { refreshInterval: 60000 });
-  const assetData = useSWR('/api/assets', fetcher, { refreshInterval: 60000 });
-  const errorLogs = useSWR('/api/logs', fetcher, { refreshInterval: 60000 });
-  const trades = data?.trades || [];
-  const logs: any = errorLogs?.data?.logs || [];
-  const assets: any = assetData?.data?.assets || [];
+export default function Home({ activeTab, fallback }: { activeTab: string; fallback: any }) {
+  const router = useRouter();
+  const config = useSWR('/api/config', fetcher, { refreshInterval: 1000 });
+
+  const status = config?.data?.config?.status;
 
   const items: TabsProps['items'] = [
     {
-      key: '1',
+      key: 'settings',
       label: `Control Panel`,
       children: <ControlPanel />
     },
     {
-      key: '2',
+      key: 'trades',
       label: `Trades`,
-      children: <Trades data={trades} />
+      children: <Trades />
     },
     {
-      key: '3',
+      key: 'logs',
       label: `Logs`,
-      children: <LogsTable data={logs} />
+      children: <LogsTable />
     },
     {
-      key: '4',
+      key: 'assets',
       label: `Assets`,
-      children: <Assets data={assets} />
+      children: <Assets />
     }
   ];
+
+  const handleTabChange = (activeKey: string) => {
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, tab: activeKey }
+      },
+      undefined,
+      { shallow: true }
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -92,20 +105,21 @@ export default function Home({ fallback }: { fallback: any }) {
 
       <SWRConfig value={{ fallback }}>
         <main className={styles.main}>
-          <Header />
+          <Header status={status} />
 
           <div className={styles.grid}>
             <Tabs
-              defaultActiveKey="1"
+              defaultActiveKey={activeTab || 'settings'}
               items={items}
               className={styles.fullWidthTabs}
               style={{ width: '100%' }}
+              onChange={handleTabChange}
             />
           </div>
         </main>
 
         <footer className={styles.footer}>
-          Made with love by{' '}
+          Made with ❤️ by{' '}
           <a href="https://rennalabs.xyz" target="_blank" rel="noopener noreferrer">
             Renna Labs
           </a>

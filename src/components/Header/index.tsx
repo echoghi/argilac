@@ -1,22 +1,28 @@
 // components/Header.tsx
 import React from 'react';
-import { Row, Col, Typography } from 'antd';
+import { Row, Col, Typography, Badge, Avatar } from 'antd';
+
 import styles from './Header.module.css';
-import Image from 'next/image';
 
 const { Title, Text } = Typography;
 
 interface HeaderProps {
-  onButtonClick?: () => void;
+  status: boolean | undefined;
 }
 
-const Header: React.FC<HeaderProps> = () => {
+const Header: React.FC<HeaderProps> = ({ status }: HeaderProps) => {
   return (
     <Row className={styles.headerContainer}>
       <Row>
         <Col>
-          <div className={styles.logoContainer}>
-            <Image src="/logo.png" alt="Argilac Logo" width="75" height="75" priority />
+          <div>
+            <div className={styles.badgeContainer}>
+              <Badge
+                status={status ? 'processing' : 'default'}
+                title={status ? 'Running' : 'Halted'}
+              />
+            </div>
+            <Avatar src="/logo.png" alt="Argilac Logo" shape="square" size={75} />
           </div>
         </Col>
         <div className={styles.titleContainer}>

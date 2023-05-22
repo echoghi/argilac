@@ -13,3 +13,7 @@
   color: #6c757d;
   text-decoration: line-through;
 }
+
+.alertContainer {
+  margin-top: 20px;
+}
