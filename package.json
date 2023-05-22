@@ -8,7 +8,8 @@
     "start": "next start -p 80",
     "lint": "next lint",
     "clean": "rm -rf .next node_modules",
-    "ngrok": "ngrok http 80"
+    "ngrok": "ngrok http 80",
+    "apiKey": "esno ./src/lib/genApiKey.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
@@ -35,5 +36,7 @@
     "typescript": "5.0.4",
     "web3": "^1.8.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esno": "^0.16.3"
+  }
 }
